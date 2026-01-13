@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio Hub</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1117;
+        --bg-accent: #0f1b24;
+        --card: #0f1f2b;
+        --card-border: rgba(78, 196, 255, 0.2);
+        --text: #e6f1f7;
+        --muted: #9fb6c7;
+        --primary: #38bdf8;
+        --primary-strong: #0ea5e9;
+        --glow: rgba(56, 189, 248, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Space Grotesk", "Trebuchet MS", sans-serif;
+        background: radial-gradient(circle at top, rgba(31, 135, 204, 0.2), transparent 50%),
+          linear-gradient(180deg, var(--bg), #05080c 70%);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .wrapper {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 80px 24px 96px;
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      h1 {
+        font-size: clamp(2.8rem, 4vw, 4.2rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 12px;
+      }
+
+      .subtitle {
+        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        color: var(--muted);
+        margin: 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+        justify-items: center;
+      }
+
+      .card {
+        background: linear-gradient(160deg, rgba(56, 189, 248, 0.08), transparent 55%),
+          var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 20px 40px rgba(5, 15, 24, 0.45);
+        position: relative;
+        overflow: hidden;
+        min-height: 0;
+        width: min(320px, 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background: radial-gradient(circle, var(--glow), transparent 60%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+      }
+
+      .card:hover::after {
+        opacity: 1;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 1.5rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .cta {
+        margin-top: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        border-radius: 999px;
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: fit-content;
+        align-self: center;
+        cursor: pointer;
+      }
+
+      .cta::after {
+        content: "↗";
+        font-size: 1.1rem;
+        color: var(--primary);
+      }
+
+      .cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(14, 165, 233, 0.3);
+      }
+
+      .accent {
+        display: inline-block;
+        color: var(--primary);
+      }
+
+      .footer {
+        margin-top: auto;
+        padding-top: 40px;
+        text-align: center;
+        font-size: 0.95rem;
+        color: var(--muted);
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      @media (max-width: 640px) {
+        .wrapper {
+          padding: 64px 20px 80px;
+        }
+
+        .card {
+          padding: 24px;
+        }
+
+        .cta {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap"
+    />
+  </head>
+  <body>
+    <main class="wrapper">
+      <header>
+        <h1>Well, <span class="accent">hello</span> there!</h1>
+        <p class="subtitle">What do you want to check out?</p>
+      </header>
+
+      <section class="grid">
+        <article class="card">
+          <div>
+            <h2>EduCast.AI</h2>
+            <p>Protoype of AI study tool for university project</p>
+          </div>
+          <a class="cta" href="https://leylaroose.github.io/educastai/" target="_blank" rel="noreferrer">
+            check it out
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <h2>Marketing Oracle</h2>
+            <p>Marketing truth teller for trade fairs or other occasions</p>
+          </div>
+          <a class="cta" href="https://leylaroose.github.io/truthteller/" target="_blank" rel="noreferrer">
+            check it out
+          </a>
+        </article>
+
+        <article class="card">
+          <div>
+            <p>more coming soon...</p>
+          </div>
+        </article>
+      </section>
+
+      <div class="footer">made by Leyla</div>
+    </main>
+  </body>
+</html>
