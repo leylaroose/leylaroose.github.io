@@ -219,19 +219,25 @@ body{background:#eef0f4;color:#1f2430;font-family:Inter,system-ui,sans-serif;dis
 .pins-off .box,.pins-off .btag{display:none}
 
 /* Rangfolge */
-.rank{display:flex;flex-direction:column;align-items:center;gap:14px}
+.rank{display:flex;flex-direction:column;align-items:center;gap:16px}
 .rank h3{font:700 22px Inter,sans-serif;color:#1f2430}
 .rank .hint{font-size:14px;color:#6b7280;margin-top:-10px}
-.rrow{display:flex;gap:18px;justify-content:center}
+.rrow{display:flex;gap:16px;justify-content:center;align-items:flex-start}
 .slot{display:flex;flex-direction:column;align-items:center;gap:8px}
-.slot .pos{font:700 18px Inter,sans-serif;color:#2563eb;line-height:1}
-.rc{background:#fff;border-radius:18px;padding:10px 10px 12px;box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:grab;display:flex;flex-direction:column;align-items:center;gap:8px;border:2px solid transparent;user-select:none}
+.slot .pos{font:700 18px Inter,sans-serif;color:#2563eb;line-height:1;height:18px}
+.rc{position:relative;border-radius:18px;cursor:grab;border:3px solid transparent;user-select:none;box-shadow:0 6px 18px rgba(0,0,0,.12)}
 .rc.drag{opacity:.4}
 .rc.over{border-color:#2563eb}
-.rc .let{font:800 20px Inter,sans-serif;color:#1f2430;line-height:1}
-.rc .mini{overflow:hidden;border-radius:18px;pointer-events:none;position:relative}
-.rc .mini .phone{transform-origin:0 0;position:absolute;left:0;top:0}
-.rc .mini .frame{display:none}
+.rc .let{position:absolute;top:-12px;right:-12px;z-index:2;width:34px;height:34px;border-radius:50%;background:#1f2430;color:#fff;font:800 17px/34px Inter,sans-serif;text-align:center}
+.rc .mini{overflow:hidden;border-radius:16px;pointer-events:none;position:relative}
+.rc .mini .inner{transform-origin:0 0;position:absolute;left:0;top:0;width:max-content}
+.rmsg{background:var(--bg);color:var(--fg);padding:12px;width:330px}
+.rmsg .rhd{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:10px}
+.rmsg .rl{width:26px;height:26px;border-radius:7px;overflow:hidden;display:inline-block}
+.rmsg.and .rl{border-radius:50%}
+.rmsg .rbody{display:flex;flex-direction:column;gap:6px}
+.rmsg .rbody>*{flex-shrink:0}
+.rmsg.and .car{margin:0;padding:0}
 .rank .res{font:600 16px Inter,sans-serif;color:#1f2430;background:#fff;border-radius:10px;padding:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 </style>
 </head>
@@ -278,8 +284,8 @@ B:{brand:'Frischkauf',logo:'frisch',color:'#1f8a4c',desc:'Dein Supermarkt in der
     acts:[{l:'Zum Prospekt',u:'frischkauf.de/prospekt'},{l:'Filiale finden',u:'frischkauf.de/filialen'}]}]},
 C:{brand:'SV Lindenbach 1921',logo:'svl',color:'#0d3b8c',desc:'Der offizielle Nachrichten-Kanal des SV Lindenbach. ⚽',web:'sv-lindenbach.de',phone:'+49 621 987 6540',
   day:'Freitag',time:'09:15',
-  msgs:[{t:'text',h:'⚽ Willkommen im Nachrichten-Kanal des SV Lindenbach! 💙🤍\n\nHier bekommst du ab sofort alle News, den Ticket-Vorverkauf und exklusive Einblicke rund um den Verein, noch bevor alle anderen sie sehen! 🚀\n\n🎟️ Am Montag um 10 Uhr startet der Vorverkauf fürs Derby am Samstag, 12.12. Sichere dir deine Plätze rechtzeitig:\n<a>sv-lindenbach.de/tickets</a>\n\nFalls du keine Nachrichten mehr möchtest, schreib einfach STOPP. 🚫'},
-   {t:'lp',img:'C1',sz:'1200 × 630',title:'Tickets Derby | SV Lindenbach 1921',dom:'sv-lindenbach.de',u:'sv-lindenbach.de/tickets'}]},
+  msgs:[{t:'text',h:'⚽ Willkommen im Nachrichten-Kanal des SV Lindenbach! 💙🤍\n\nHier bekommst du ab sofort alle News, den Ticket-Vorverkauf und exklusive Einblicke rund um den Verein, noch bevor alle anderen sie sehen! 🚀\n\n🎟️ Am Montag um 10 Uhr startet der Vorverkauf fürs Heimspiel gegen den FC Steinbach am Samstag, 12.12. Sichere dir deine Plätze rechtzeitig:\n<a>sv-lindenbach.de/tickets</a>\n\nFalls du keine Nachrichten mehr möchtest, schreib einfach STOPP. 🚫'},
+   {t:'lp',img:'C1',sz:'1200 × 630',title:'Tickets Heimspiel | SV Lindenbach 1921',dom:'sv-lindenbach.de',u:'sv-lindenbach.de/tickets'}]},
 D:{brand:'Paketfix',logo:'paket',color:'#0f6e5e',desc:'Paketzustellung in ganz Deutschland. Sendungen verfolgen und Zustellung ändern.',web:'paketfix.de',phone:'+49 800 765 4321',
   day:'Heute',time:'10:43',
   msgs:[{t:'card',img:'D1',sz:'1200 × 800',title:'Dein Paket ist da 📦',desc:'Sendung 3928 4471 wurde heute um 10:42 Uhr an deiner Haustür abgelegt.',
@@ -489,14 +495,23 @@ function andProfile(sc){
 }
 
 /* ---------- Rangfolge ---------- */
+function rankBody(id){
+  const sc=S[id],dk=st.th;
+  const head=`<div class="rhd"><span class="rl" ${sc.unv?'style="border-radius:50%"':''}>${LOGO[sc.logo]}</span><b>${sc.brand}</b>${(!sc.unv&&st.dev==='and')?ICON.badge:''}</div>`;
+  const body=st.dev==='ios'?iosMsgs(id,sc.msgs,'m'):andMsgs(id,sc.msgs.filter(m=>m.t!=='rep'));
+  const chips=(st.dev==='and')?sc.msgs.filter(m=>m.t==='rep').map(m=>`<div class="chips" style="justify-content:flex-start;padding:4px 0">${m.list.map(o=>`<div class="chip">${o.l}</div>`).join('')}</div>`).join(''):'';
+  return `<div class="${st.dev} ${dk} rmsg">${head}<div class="rbody">${body}${chips}</div></div>`;
+}
 function drawRank(){
   const W=stage.clientWidth-40, Hh=Math.min(stage.clientHeight,window.innerHeight)-30;
-  const k=Math.max(0.2,Math.min((W/4-44)/393,((Hh/2)-86)/852));
-  const w=Math.round(393*k),h=Math.round(852*k);
-  const card=(id,i)=>{const ph=st.dev==='ios'?iosChat(id):andChat(id);
-    return `<div class="slot"><div class="pos">${i+1}</div><div class="rc" draggable="true" data-id="${id}"><div class="let">${id}</div><div class="mini" style="width:${w}px;height:${h}px"><div class="phone ${st.dev} ${st.th}" style="transform:scale(${k})"><div class="screen">${ph}</div></div></div></div></div>`};
+  const card=(id,i)=>`<div class="slot"><div class="pos">${i+1}</div><div class="rc" draggable="true" data-id="${id}"><span class="let">${id}</span><div class="mini"><div class="inner">${rankBody(id)}</div></div></div></div>`;
   stage.innerHTML=`<div class="rank"><div class="rrow">${rank.slice(0,4).map((id,i)=>card(id,i)).join('')}</div><div class="rrow">${rank.slice(4).map((id,i)=>card(id,i+4)).join('')}</div></div>`;
-  document.querySelectorAll('.rc .chat').forEach(c=>c.scrollTop=c.scrollHeight);
+  const inners=[...document.querySelectorAll('.rc .inner')];
+  const nat=inners.map(e=>({w:e.offsetWidth,h:e.offsetHeight}));
+  const maxW=Math.max(...nat.map(n=>n.w)),maxH=Math.max(...nat.map(n=>n.h));
+  const top=Math.max(...nat.slice(0,4).map(n=>n.h)),bot=Math.max(...nat.slice(4).map(n=>n.h));
+  const k=Math.min(1.3,(W-3*16)/4/maxW,(Hh-2*34-16)/(top+bot));
+  inners.forEach((e,i)=>{e.style.transform=`scale(${k})`;const m=e.parentElement;m.style.width=Math.round(maxW*k)+'px';m.style.height=Math.round(nat[i].h*k)+'px'});
   let dragId=null;
   document.querySelectorAll('.rc').forEach(el=>{
     el.addEventListener('dragstart',e=>{dragId=el.dataset.id;el.classList.add('drag');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(_){}});
