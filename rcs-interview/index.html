@@ -254,6 +254,7 @@ body{background:#eef0f4;color:#1f2430;font-family:Inter,system-ui,sans-serif;dis
 <div class="stage" id="stage"></div>
 
 <script>
+const V="20261122c";
 /* ---------- Logos (erfundene Marken) ---------- */
 const LOGO={
 deal:`<svg viewBox="0 0 60 60"><rect width="60" height="60" fill="#ff6a00"/><path d="M14 34 L30 14 L46 34 Z" fill="#fff"/><circle cx="30" cy="40" r="8" fill="#fff"/><text x="30" y="44" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="800" fill="#ff6a00">%</text></svg>`,
@@ -331,8 +332,8 @@ function R(){if(!run[st.sc])run[st.sc]=fresh();return run[st.sc]}
 const esc=s=>s;
 function media(id,sz,vid){
   const ph=`<div class="ph">Platzhalter ${id}<small>${sz}</small></div>`;
-  if(vid) return `<video src="img/${id}.mp4" autoplay muted loop playsinline onerror="this.outerHTML=this.dataset.ph" data-ph='${ph}'></video>`;
-  return `<img src="img/${id}.jpg" alt="" onerror="this.outerHTML=this.dataset.ph" data-ph='${ph}'>`;
+  if(vid) return `<video src="img/${id}.mp4?v=${V}" autoplay muted loop playsinline onerror="this.outerHTML=this.dataset.ph" data-ph='${ph}'></video>`;
+  return `<img src="img/${id}.jpg?v=${V}" alt="" onerror="this.outerHTML=this.dataset.ph" data-ph='${ph}'>`;
 }
 const ICON={
  compass:`<svg width="12" height="12" viewBox="0 0 24 24"><path fill="#fff" d="M17 7l-3.4 6.6L7 17l3.4-6.6z"/></svg>`,
@@ -540,7 +541,7 @@ function draw(scrollEnd){
   document.getElementById('pins').classList.toggle('on',st.pins);
   if(st.sc==='E0'){
     const imgs=[1,2].map(i=>`${st.dev}_${st.th}_${i}`);
-    stage.innerHTML=`<div class="scaler ${st.pins?'':'pins-off'}" id="sc"><div class="duo">${imgs.map((f,i)=>`<div class="shot"><img src="img/einstieg/${f}.jpg" alt="">${pinsHTML(EIN[f],i?'R':'L')}</div>`).join('')}</div></div>`;
+    stage.innerHTML=`<div class="scaler ${st.pins?'':'pins-off'}" id="sc"><div class="duo">${imgs.map((f,i)=>`<div class="shot"><img src="img/einstieg/${f}.jpg?v=${V}" alt="">${pinsHTML(EIN[f],i?'R':'L')}</div>`).join('')}</div></div>`;
     fit(document.getElementById('sc'),380*2+90+(st.pins?400:0),860);return;
   }
   if(st.sc==='RK'){drawRank();return}
