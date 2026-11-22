@@ -219,16 +219,16 @@ body{background:#eef0f4;color:#1f2430;font-family:Inter,system-ui,sans-serif;dis
 .pins-off .box,.pins-off .btag{display:none}
 
 /* Rangfolge */
-.rank{display:flex;flex-direction:column;align-items:center;gap:18px}
+.rank{display:flex;flex-direction:column;align-items:center;gap:14px}
 .rank h3{font:700 22px Inter,sans-serif;color:#1f2430}
 .rank .hint{font-size:14px;color:#6b7280;margin-top:-10px}
-.rrow{display:flex;gap:14px}
+.rrow{display:flex;gap:18px;justify-content:center}
 .slot{display:flex;flex-direction:column;align-items:center;gap:8px}
-.slot .pos{font:700 20px Inter,sans-serif;color:#2563eb}
+.slot .pos{font:700 18px Inter,sans-serif;color:#2563eb;line-height:1}
 .rc{background:#fff;border-radius:18px;padding:10px 10px 12px;box-shadow:0 6px 18px rgba(0,0,0,.08);cursor:grab;display:flex;flex-direction:column;align-items:center;gap:8px;border:2px solid transparent;user-select:none}
 .rc.drag{opacity:.4}
 .rc.over{border-color:#2563eb}
-.rc .let{font:800 26px Inter,sans-serif;color:#1f2430}
+.rc .let{font:800 20px Inter,sans-serif;color:#1f2430;line-height:1}
 .rc .mini{overflow:hidden;border-radius:18px;pointer-events:none;position:relative}
 .rc .mini .phone{transform-origin:0 0;position:absolute;left:0;top:0}
 .rc .mini .frame{display:none}
@@ -490,12 +490,12 @@ function andProfile(sc){
 
 /* ---------- Rangfolge ---------- */
 function drawRank(){
-  const avail=stage.clientWidth-60, k=Math.min(0.36,(avail/7-34)/393);
+  const W=stage.clientWidth-40, Hh=Math.min(stage.clientHeight,window.innerHeight)-30;
+  const k=Math.max(0.2,Math.min((W/4-44)/393,((Hh/2)-86)/852));
   const w=Math.round(393*k),h=Math.round(852*k);
-  stage.innerHTML=`<div class="rank"><h3>Bring die Beispiele in eine Reihenfolge</h3><div class="hint">Links = spricht am meisten an, rechts = spricht am wenigsten an. Karten mit der Maus ziehen.</div>
-   <div class="rrow" id="rrow">${rank.map((id,i)=>{const ph=st.dev==='ios'?iosChat(id):andChat(id);
-     return `<div class="slot"><div class="pos">${i+1}</div><div class="rc" draggable="true" data-id="${id}"><div class="let">${id}</div><div class="mini" style="width:${w}px;height:${h}px"><div class="phone ${st.dev} ${st.th}" style="transform:scale(${k})"><div class="screen">${ph}</div></div></div></div></div>`}).join('')}</div>
-   <div class="res">Reihenfolge: ${rank.map((x,i)=>`${i+1}. ${x}`).join('  ·  ')}</div></div>`;
+  const card=(id,i)=>{const ph=st.dev==='ios'?iosChat(id):andChat(id);
+    return `<div class="slot"><div class="pos">${i+1}</div><div class="rc" draggable="true" data-id="${id}"><div class="let">${id}</div><div class="mini" style="width:${w}px;height:${h}px"><div class="phone ${st.dev} ${st.th}" style="transform:scale(${k})"><div class="screen">${ph}</div></div></div></div></div>`};
+  stage.innerHTML=`<div class="rank"><div class="rrow">${rank.slice(0,4).map((id,i)=>card(id,i)).join('')}</div><div class="rrow">${rank.slice(4).map((id,i)=>card(id,i+4)).join('')}</div></div>`;
   document.querySelectorAll('.rc .chat').forEach(c=>c.scrollTop=c.scrollHeight);
   let dragId=null;
   document.querySelectorAll('.rc').forEach(el=>{
@@ -504,9 +504,11 @@ function drawRank(){
     el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
     el.addEventListener('dragleave',()=>el.classList.remove('over'));
     el.addEventListener('drop',e=>{e.preventDefault();const t=el.dataset.id;if(!dragId||dragId===t)return;
-      const from=rank.indexOf(dragId),to=rank.indexOf(t);rank.splice(from,1);rank.splice(to,0,dragId);drawRank()});
+      const from=rank.indexOf(dragId),to=rank.indexOf(t);rank.splice(from,1);rank.splice(to,0,dragId);saveRank();drawRank()});
   });
 }
+function saveRank(){try{sessionStorage.setItem('rang',JSON.stringify(rank))}catch(_){}}
+try{const v=JSON.parse(sessionStorage.getItem('rang')||'null');if(Array.isArray(v)&&v.length===7)rank=v}catch(_){}
 
 /* ---------- Zeichnen ---------- */
 const stage=document.getElementById('stage');
@@ -549,7 +551,7 @@ document.querySelectorAll('[data-dev]').forEach(b=>b.onclick=()=>{st.dev=b.datas
 document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{st.th=b.dataset.th;draw()});
 document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>{st.sc=b.dataset.sc;draw()});
 document.getElementById('pins').onclick=()=>{st.pins=!st.pins;draw()};
-document.getElementById('reset').onclick=()=>{run={};rank=['A','B','C','D','E','F','G'];draw()};
+document.getElementById('reset').onclick=()=>{run={};rank=['A','B','C','D','E','F','G'];saveRank();draw()};
 document.addEventListener('keydown',e=>{const q=['E0',...ORDER];let i=q.indexOf(st.sc);
   if(e.key==='ArrowRight'){st.sc=q[(i+1)%q.length];draw()}
   if(e.key==='ArrowLeft'){st.sc=q[(i-1+q.length)%q.length];draw()}});
