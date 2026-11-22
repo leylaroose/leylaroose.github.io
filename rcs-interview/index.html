@@ -239,6 +239,16 @@ body{background:#eef0f4;color:#1f2430;font-family:Inter,system-ui,sans-serif;dis
 .rmsg .rbody>*{flex-shrink:0}
 .rmsg.and .car{margin:0;padding:0}
 .rank .res{font:600 16px Inter,sans-serif;color:#1f2430;background:#fff;border-radius:10px;padding:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.rk2{display:flex;gap:28px;align-items:flex-start;justify-content:center;width:100%}
+.rpool{background:#e4e7ee;border-radius:18px;padding:12px;align-self:stretch;border:3px dashed transparent}
+.rpool .rph{font:700 13px Inter,sans-serif;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px 4px}
+.rpgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;justify-items:center}
+.sgrid{display:grid;gap:14px}
+.sbox{border:3px dashed #c7ccd6;border-radius:18px;display:flex;align-items:flex-start;justify-content:center;padding:3px;box-sizing:border-box}
+.drop.over{border-color:#2563eb;background:rgba(37,99,235,.06)}
+.inner.m{width:max-content}
+.rc{position:relative;border-radius:18px;cursor:grab;user-select:none;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.rc .let{top:-10px;right:-10px;width:28px;height:28px;font:800 14px/28px Inter,sans-serif}
 </style>
 </head>
 <body>
@@ -304,11 +314,8 @@ F:{brand:'Kontora Bank',logo:'bank',color:'#123a5a',desc:'Deine digitale Bank. K
     acts:[{l:'Jetzt eröffnen',u:'kontora-bank.de/tagesgeld'}]},
    {t:'rep',list:[{l:'Mehr erfahren',r:[{t:'text',h:'Gerne! 3,1 % gibt es für Neukund:innen in den ersten 4 Monaten auf bis zu 100.000 €. Das Geld ist jederzeit verfügbar. Alle Details findest du in der App. 📱'}]},
      {l:'Kein Interesse',r:[{t:'text',h:'Alles klar! Wir schicken dir zu diesem Thema keine weiteren Nachrichten. 👍'}]}]}]},
-G:{brand:'KONTORA-INFO',logo:'unk',unv:true,color:'#888',
-  day:'Heute',time:'14:53',
-  msgs:[{t:'text',h:'Kontora Bank: Ihr Konto wurde vorübergehend eingeschränkt. Bitte bestätigen Sie Ihre Daten innerhalb von 24 Std., um eine Sperrung zu vermeiden: <a>kontora-sicherheit.info/k7x</a>',u:'kontora-sicherheit.info/k7x'}]},
 };
-const ORDER=['A','B','C','D','E','F','G'];
+const ORDER=['A','B','C','D','E','F'];
 
 /* Einstieg: echte Screenshots + Markierungen (Prozent-Positionen) */
 const EIN={
@@ -323,7 +330,7 @@ const EIN={
 };
 
 /* ---------- Zustand ---------- */
-let st={dev:'ios',th:'light',sc:'E0',pins:false};let rank=['A','B','C','D','E','F','G'];
+let st={dev:'ios',th:'light',sc:'E0',pins:false};let rank=[null,null,null,null,null,null];
 let run={}; // je Szene: zusätzliche Nachrichten, Ansicht, Karussell, Optionen
 function fresh(){return {extra:[],view:'chat',ci:0,opt:{},menu:false,used:{},url:''}}
 function R(){if(!run[st.sc])run[st.sc]=fresh();return run[st.sc]}
@@ -504,27 +511,37 @@ function rankBody(id){
   return `<div class="${st.dev} ${dk} rmsg">${head}<div class="rbody">${body}${chips}</div></div>`;
 }
 function drawRank(){
-  const W=stage.clientWidth-40, Hh=Math.min(stage.clientHeight,window.innerHeight)-30;
-  const card=(id,i)=>`<div class="slot"><div class="pos">${i+1}</div><div class="rc" draggable="true" data-id="${id}"><span class="let">${id}</span><div class="mini"><div class="inner">${rankBody(id)}</div></div></div></div>`;
-  stage.innerHTML=`<div class="rank"><div class="rrow">${rank.slice(0,4).map((id,i)=>card(id,i)).join('')}</div><div class="rrow">${rank.slice(4).map((id,i)=>card(id,i+4)).join('')}</div></div>`;
-  const inners=[...document.querySelectorAll('.rc .inner')];
-  const nat=inners.map(e=>({w:e.offsetWidth,h:e.offsetHeight}));
-  const maxW=Math.max(...nat.map(n=>n.w)),maxH=Math.max(...nat.map(n=>n.h));
-  const top=Math.max(...nat.slice(0,4).map(n=>n.h)),bot=Math.max(...nat.slice(4).map(n=>n.h));
-  const k=Math.min(1.3,(W-3*16)/4/maxW,(Hh-2*34-16)/(top+bot));
-  inners.forEach((e,i)=>{e.style.transform=`scale(${k})`;const m=e.parentElement;m.style.width=Math.round(maxW*k)+'px';m.style.height=Math.round(nat[i].h*k)+'px'});
+  const W=stage.clientWidth-40, H=Math.min(stage.clientHeight,window.innerHeight)-40;
+  const pool=ORDER.filter(id=>!rank.includes(id));
+  const PW=Math.round(W*0.27), G=14, SW=W-PW-28;
+  const slotW=Math.floor((SW-2*G)/3), slotH=Math.floor((H-2*26-G)/2);
+  const pcW=Math.floor((PW-G)/2), pcH=Math.floor((H-34-2*G)/3);
+  // natuerliche Groessen messen
+  stage.innerHTML=`<div style="position:absolute;visibility:hidden">${ORDER.map(id=>`<div class="inner m" data-id="${id}">${rankBody(id)}</div>`).join('')}</div>`;
+  const nat={};stage.querySelectorAll('.inner.m').forEach(e=>nat[e.dataset.id]={w:e.offsetWidth,h:e.offsetHeight});
+  const mw=Math.max(...ORDER.map(i=>nat[i].w)),mh=Math.max(...ORDER.map(i=>nat[i].h));
+  const ks=Math.min(1.2,(slotW-16)/mw,(slotH-16)/mh), kp=Math.min(.8,(pcW-6)/mw,(pcH-6)/mh);
+  const card=(id,k)=>`<div class="rc" draggable="true" data-id="${id}"><span class="let">${id}</span><div class="mini" style="width:${Math.round(mw*k)}px;height:${Math.round(nat[id].h*k)}px"><div class="inner" style="transform:scale(${k})">${rankBody(id)}</div></div></div>`;
+  stage.innerHTML=`<div class="rk2">
+    <div class="rpool drop" data-slot="pool"><div class="rph">Beispiele</div><div class="rpgrid">${pool.map(id=>`<div class="rpc">${card(id,kp)}</div>`).join('')}</div></div>
+    <div class="sgrid" style="grid-template-columns:repeat(3,${slotW}px)">${rank.map((id,i)=>`<div class="slot"><div class="pos">${i+1}</div><div class="sbox drop" data-slot="${i}" style="width:${slotW}px;height:${slotH}px">${id?card(id,ks):''}</div></div>`).join('')}</div></div>`;
   let dragId=null;
-  document.querySelectorAll('.rc').forEach(el=>{
+  stage.querySelectorAll('.rc').forEach(el=>{
     el.addEventListener('dragstart',e=>{dragId=el.dataset.id;el.classList.add('drag');e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',dragId)}catch(_){}});
     el.addEventListener('dragend',()=>el.classList.remove('drag'));
-    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('over')});
-    el.addEventListener('dragleave',()=>el.classList.remove('over'));
-    el.addEventListener('drop',e=>{e.preventDefault();const t=el.dataset.id;if(!dragId||dragId===t)return;
-      const from=rank.indexOf(dragId),to=rank.indexOf(t);rank.splice(from,1);rank.splice(to,0,dragId);saveRank();drawRank()});
+  });
+  stage.querySelectorAll('.drop').forEach(z=>{
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over')});
+    z.addEventListener('dragleave',()=>z.classList.remove('over'));
+    z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');if(!dragId)return;
+      const from=rank.indexOf(dragId), t=z.dataset.slot;
+      if(t==='pool'){if(from>-1)rank[from]=null}
+      else{const to=+t,prev=rank[to];rank[to]=dragId;if(from>-1&&from!==to)rank[from]=prev||null}
+      saveRank();drawRank()});
   });
 }
 function saveRank(){try{sessionStorage.setItem('rang',JSON.stringify(rank))}catch(_){}}
-try{const v=JSON.parse(sessionStorage.getItem('rang')||'null');if(Array.isArray(v)&&v.length===7)rank=v}catch(_){}
+try{const v=JSON.parse(sessionStorage.getItem('rang')||'null');if(Array.isArray(v)&&v.length===6)rank=v}catch(_){}
 
 /* ---------- Zeichnen ---------- */
 const stage=document.getElementById('stage');
@@ -567,7 +584,7 @@ document.querySelectorAll('[data-dev]').forEach(b=>b.onclick=()=>{st.dev=b.datas
 document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{st.th=b.dataset.th;draw()});
 document.querySelectorAll('[data-sc]').forEach(b=>b.onclick=()=>{st.sc=b.dataset.sc;draw()});
 document.getElementById('pins').onclick=()=>{st.pins=!st.pins;draw()};
-document.getElementById('reset').onclick=()=>{run={};rank=['A','B','C','D','E','F','G'];saveRank();draw()};
+document.getElementById('reset').onclick=()=>{run={};rank=[null,null,null,null,null,null];saveRank();draw()};
 document.addEventListener('keydown',e=>{const q=['E0',...ORDER];let i=q.indexOf(st.sc);
   if(e.key==='ArrowRight'){st.sc=q[(i+1)%q.length];draw()}
   if(e.key==='ArrowLeft'){st.sc=q[(i-1+q.length)%q.length];draw()}});
